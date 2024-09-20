@@ -26,6 +26,21 @@ npm install
 
 ```
 
+## Create .env.local file
+
+```bash
+
+NEXT_PUBLIC_YOUTUBE_API_KEY = ""
+
+```
+## create Api from
+
+```bash
+
+https://console.cloud.google.com/apis/dashboard
+
+```
+
 First, run the development server:
 
 ```bash
