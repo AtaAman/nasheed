@@ -1,16 +1,29 @@
 "use client";
-import { useState } from 'react';
-import usePlaylistStore from '../../stores/usePlaylistStore';
-import { getVideoDetails } from '@/lib/youtubeApi';
-import { FaHeart, FaEdit, FaTrash, FaPlay, FaPause } from 'react-icons/fa';
-import PlaylistMusicPlayer from '@/components/MusicPlayer/PlaylistMusicPlayer';
+import { useState } from "react";
+import usePlaylistStore from "../../stores/usePlaylistStore";
+import { getVideoDetails } from "@/lib/youtubeApi";
+import { FaHeart, FaEdit, FaTrash, FaPlay, FaPause } from "react-icons/fa";
+import PlaylistMusicPlayer from "@/components/MusicPlayer/PlaylistMusicPlayer";
 
 const Playlist = () => {
-  const { playlist, playTrack, updateTrack, deleteTrack, toggleFavorite, isPlaying, currentTrackIndex, togglePlayPause } = usePlaylistStore();
+  const {
+    playlist,
+    playTrack,
+    updateTrack,
+    deleteTrack,
+    toggleFavorite,
+    isPlaying,
+    currentTrackIndex,
+    togglePlayPause,
+  } = usePlaylistStore();
   const [editIndex, setEditIndex] = useState<number | null>(null);
-  const [editedTrack, setEditedTrack] = useState({ title: '', artist: '', url: '' });
+  const [editedTrack, setEditedTrack] = useState({
+    title: "",
+    artist: "",
+    url: "",
+  });
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [showFavorites, setShowFavorites] = useState(false);
   const [isPlayerVisible, setIsPlayerVisible] = useState(false);
 
@@ -19,13 +32,13 @@ const Playlist = () => {
     setEditedTrack({
       title: playlist[index].title,
       artist: playlist[index].artist,
-      url: `https://youtu.be/${playlist[index].youtubeId}`
+      url: `https://youtu.be/${playlist[index].youtubeId}`,
     });
   };
 
   const handleClosePlayer = () => {
     setIsPlayerVisible(false);
-    togglePlayPause(); 
+    togglePlayPause();
   };
 
   const handleSaveEdit = async () => {
@@ -38,22 +51,22 @@ const Playlist = () => {
             ...editedTrack,
             youtubeId,
             thumbnail,
-            favorite: false
+            favorite: false,
           });
           setEditIndex(null);
-          setEditedTrack({ title: '', artist: '', url: '' });
+          setEditedTrack({ title: "", artist: "", url: "" });
         } catch (error) {
-          console.error('Failed to get video details:', error);
+          console.error("Failed to get video details:", error);
         }
       } else {
-        console.warn('Invalid YouTube URL');
+        console.warn("Invalid YouTube URL");
       }
     }
   };
 
   const handleCancelEdit = () => {
     setEditIndex(null);
-    setEditedTrack({ title: '', artist: '', url: '' });
+    setEditedTrack({ title: "", artist: "", url: "" });
   };
 
   const handleDelete = (index: number) => {
@@ -69,25 +82,26 @@ const Playlist = () => {
       togglePlayPause();
     } else {
       playTrack(index);
-      setIsPlayerVisible(true); 
+      setIsPlayerVisible(true);
     }
   };
 
   function extractYouTubeId(url: string): string | null {
-    const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|v\/|e\/|watch\?v=|embed\/|user\/\S+\/|playlist\?list=))|(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const regex =
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|v\/|e\/|watch\?v=|embed\/|user\/\S+\/|playlist\?list=))|(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/;
     const match = url.match(regex);
     return match ? match[1] : null;
   }
 
-  const filteredPlaylist = playlist.filter(track => 
-    track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    track.artist.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredPlaylist = playlist.filter(
+    (track) =>
+      track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      track.artist.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const displayedTracks = showFavorites
-  ? playlist.filter(track => track.favorite)
-  : filteredPlaylist;
-
+    ? playlist.filter((track) => track.favorite)
+    : filteredPlaylist;
 
   return (
     <div className="container mx-auto p-4">
@@ -95,10 +109,9 @@ const Playlist = () => {
         onClick={() => setShowFavorites(!showFavorites)}
         className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded mb-4"
       >
-        {showFavorites ? 'Show All Tracks' : 'Show Favorites'}
+        {showFavorites ? "Show All Tracks" : "Show Favorites"}
       </button>
       <div className="flex justify-between items-center mb-4">
-        
         <input
           type="text"
           value={searchQuery}
@@ -109,31 +122,45 @@ const Playlist = () => {
       </div>
 
       <ul className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-         {displayedTracks.length > 0 ? (
+        {displayedTracks.length > 0 ? (
           displayedTracks.map((track, index) => (
             <li
               key={index}
-              className="bg-[#141414] hover:bg-[#0e0d0d] shadow-lg rounded-lg p-4 flex flex-col space-y-4 hover:shadow-xl transition-shadow relative"
+              className={`group bg-[#141414] hover:bg-[#0e0d0d] shadow-lg rounded-lg p-4 flex flex-col space-y-4 hover:shadow-xl transition-shadow relative ${
+                hoverIndex === index ? "ring-2 ring-green-950" : ""
+              }`}
               onMouseEnter={() => setHoverIndex(index)}
               onMouseLeave={() => setHoverIndex(null)}
             >
               <div className="flex items-center space-x-4">
-                <img src={track.thumbnail} alt={track.title} className="w-35 h-24 object-cover rounded-lg" />
+                <img
+                  src={track.thumbnail}
+                  alt={track.title}
+                  className="w-35 h-24 object-cover rounded-lg"
+                />
                 <div>
-                  <h3 className="font-bold text-xl text-white">{track.title}</h3>
+                  <h3 className="font-bold text-xl text-white">
+                    {track.title}
+                  </h3>
                   <p className="text-gray-400">{track.artist}</p>
                 </div>
               </div>
 
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handlePlayTrack(index);
-                }}
-                className="absolute top-4 right-4 bg-white rounded-full p-2 text-black"
-              >
-                {isPlaying && currentTrackIndex === index ? <FaPause size={16} /> : <FaPlay size={16} />}
-              </button>
+              <div className="absolute top-4 right-4 hidden group-hover:block">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePlayTrack(index);
+                  }}
+                  className="bg-white rounded-full p-2 text-black"
+                >
+                  {isPlaying && currentTrackIndex === index ? (
+                    <FaPause size={16} />
+                  ) : (
+                    <FaPlay size={16} />
+                  )}
+                </button>
+              </div>
 
               <div className="flex items-center justify-between">
                 <button
@@ -141,7 +168,9 @@ const Playlist = () => {
                     e.stopPropagation();
                     handleToggleFavorite(index);
                   }}
-                  className={`px-3 py-1 rounded-lg font-semibold flex items-center space-x-2 ${track.favorite ? 'text-red-700' : 'text-white'}`}
+                  className={`px-3 py-1 rounded-lg font-semibold flex items-center space-x-2 ${
+                    track.favorite ? "text-red-700" : "text-white"
+                  }`}
                 >
                   <FaHeart size={18} />
                 </button>
@@ -187,39 +216,54 @@ const Playlist = () => {
             <input
               type="text"
               value={editedTrack.title}
-              onChange={(e) => setEditedTrack({ ...editedTrack, title: e.target.value })}
+              onChange={(e) =>
+                setEditedTrack({ ...editedTrack, title: e.target.value })
+              }
               placeholder="Enter Song Title"
               className="mb-3 p-3 border border-gray-300 rounded-lg shadow-sm w-full"
             />
             <input
               type="text"
               value={editedTrack.artist}
-              onChange={(e) => setEditedTrack({ ...editedTrack, artist: e.target.value })}
+              onChange={(e) =>
+                setEditedTrack({ ...editedTrack, artist: e.target.value })
+              }
               placeholder="Enter Artist Name"
               className="mb-3 p-3 border border-gray-300 rounded-lg shadow-sm w-full"
             />
             <input
               type="text"
               value={editedTrack.url}
-              onChange={(e) => setEditedTrack({ ...editedTrack, url: e.target.value })}
+              onChange={(e) =>
+                setEditedTrack({ ...editedTrack, url: e.target.value })
+              }
               placeholder="Enter YouTube Music Video URL"
               className="mb-3 p-3 border border-gray-300 rounded-lg shadow-sm w-full"
             />
             <div className="flex justify-end space-x-2">
-              <button onClick={handleSaveEdit} className="bg-black/70 hover:bg-black text-white font-bold py-1 md:py-2 px-4 rounded">
+              <button
+                onClick={handleSaveEdit}
+                className="bg-black/70 hover:bg-black text-white font-bold py-1 md:py-2 px-4 rounded"
+              >
                 Save
               </button>
-              <button onClick={handleCancelEdit} className="bg-red-700 hover:bg-red-900 text-white font-bold py-1 md:py-2 px-4 rounded">
+              <button
+                onClick={handleCancelEdit}
+                className="bg-red-700 hover:bg-red-900 text-white font-bold py-1 md:py-2 px-4 rounded"
+              >
                 Cancel
               </button>
             </div>
           </div>
         </div>
       )}
-      
+
       {isPlayerVisible && (
         <div className="fixed w-full left-0 bottom-10 z-50">
-          <button onClick={handleClosePlayer} className="bg-white hover:bg-green-700 px-3.5 py-2 font-extrabold text-black rounded-full">
+          <button
+            onClick={handleClosePlayer}
+            className="bg-white hover:bg-green-700 px-3.5 py-2 font-extrabold text-black rounded-full"
+          >
             X
           </button>
           <PlaylistMusicPlayer />
