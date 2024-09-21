@@ -72,6 +72,15 @@ const YouTubeMusicPlayer = () => {
     }
   };
 
+  //auto play next song
+
+  const onStateChange = (event: YouTubeEvent) => {
+    const playerState = event.data;
+    if (playerState === 0) {
+      nextTrack();
+    }
+  };
+
   useEffect(() => {
     if (player) {
       if (isPlaying) {
@@ -116,60 +125,56 @@ const YouTubeMusicPlayer = () => {
   const currentTrack = playlist[currentTrackIndex];
 
   return (
-    <div className="youtube-player rounded-2xl flex flex-col items-center p-5 bg-[#121212]/30 text-white/70  shadow-lg max-w-lg mx-auto">
+    <div className="youtube-player rounded-2xl flex flex-col items-center p-5 bg-[#121212]/30 text-white/70 shadow-lg max-w-lg mx-auto">
       <div className="thumbnail w-full h-60 items-center justify-center flex ">
         <img
           src={thumbnail}
           alt={currentTrack?.title || ""}
-          className="w-full rounded-3xl mt-8 pt-5 h-30  object-cover"
+          className="w-full rounded-3xl mt-8 pt-5 h-30 object-cover"
         />
       </div>
       <YouTube
         videoId={currentTrack?.youtubeId}
         opts={opts}
         onReady={onReady}
+        onStateChange={onStateChange} // Detects when video ends and plays the next one
       />
-        <div className="w-full mt-12 pt-12 flex justify-between px-5">
-           <div>
-           <h1 className="text-2xl font-bold">
+      <div className="w-full mt-12 pt-12 flex justify-between px-5">
+        <div>
+          <h1 className="text-2xl font-bold">
             {currentTrack?.title || "No track"}
           </h1>
           <h2 className="text-md font-light text-gray-200">
             {currentTrack?.artist || "No artist"}
           </h2>
-           </div>
-           <div>
-           <button
-          onClick={handleToggleFavorite}
-          className={`text-${
-            currentTrack?.favorite ? "red" : "white"
-          }-500 hover:text-${currentTrack?.favorite ? "red" : "green"}-700`}
-        >
-          <FaHeart size={24} />
-        </button>
-           </div>
         </div>
+        <div>
+          <button
+            onClick={handleToggleFavorite}
+            className={`text-${
+              currentTrack?.favorite ? "red" : "white"
+            }-500 hover:text-${currentTrack?.favorite ? "red" : "green"}-700`}
+          >
+            <FaHeart size={24} />
+          </button>
+        </div>
+      </div>
 
       <div className="controls ">
-
-       <div className="flex flex-row gap-10">
-       <button onClick={prevTrack} className="text-white hover:text-slate-900">
-          <FaStepBackward size={18} />
-        </button>
-        <button
-          onClick={handlePlayPause}
-          className="text-black/80 p-5 flex rounded-full bg-white hover:text-slate-900"
-        >
-          {isPlaying ? <FaPause size={18} /> : <FaPlay size={18} />}
-        </button>
-        <button
-          onClick={nextTrack}
-          className="text-white  hover:text-slate-900"
-        >
-          <FaStepForward size={18} />
-        </button>
-       </div>
-        
+        <div className="flex flex-row gap-10">
+          <button onClick={prevTrack} className="text-white hover:text-slate-900">
+            <FaStepBackward size={18} />
+          </button>
+          <button
+            onClick={handlePlayPause}
+            className="text-black/80 p-5 flex rounded-full bg-white hover:text-slate-900"
+          >
+            {isPlaying ? <FaPause size={18} /> : <FaPlay size={18} />}
+          </button>
+          <button onClick={nextTrack} className="text-white hover:text-slate-900">
+            <FaStepForward size={18} />
+          </button>
+        </div>
       </div>
 
       <div className="progress-container w-full flex flex-col items-center mt-6">

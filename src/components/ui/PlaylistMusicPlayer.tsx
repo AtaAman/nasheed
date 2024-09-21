@@ -73,6 +73,15 @@ const YouTubeMusicPlayer = () => {
     }
   };
 
+  //auto play next song
+
+  const onStateChange = (event: YouTubeEvent) => {
+    const playerState = event.data;
+    if (playerState === 0) {
+      nextTrack();
+    }
+  };
+
   useEffect(() => {
     if (player) {
       if (isPlaying) {
@@ -122,6 +131,7 @@ const YouTubeMusicPlayer = () => {
         videoId={currentTrack?.youtubeId}
         opts={opts}
         onReady={onReady}
+        onStateChange={onStateChange}
       />
       <div className="w-full mt-10 flex justify-between px-5">
         <div>
