@@ -10,6 +10,7 @@ import {
 import YouTube, { YouTubeEvent, YouTubePlayer } from "react-youtube";
 import usePlaylistStore from "../../stores/usePlaylistStore";
 import { useEffect, useState } from "react";
+
 import { getVideoDetails } from "@/lib/youtubeApi";
 
 const YouTubeMusicPlayer = () => {

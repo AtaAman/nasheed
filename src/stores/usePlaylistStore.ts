@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { getVideoDetails } from '../lib/youtubeApi'; 
 
@@ -22,8 +21,8 @@ interface PlaylistState {
   togglePlayPause: () => void;
   nextTrack: () => void;
   prevTrack: () => void;
-  setCurrentTime: (time: number) => void;
-  setDuration: (duration: number) => void;
+  setCurrentTime: (time?: number) => void;
+  setDuration: (duration?: number) => void;
   loadPlaylist: () => void;
   updateTrack: (index: number, track: Track) => void;
   deleteTrack: (index: number) => void;
@@ -31,25 +30,27 @@ interface PlaylistState {
   toggleFavorite: (index: number) => void; 
 }
 
+const updateLocalStorage = (playlist: Track[]) => {
+  localStorage.setItem('playlist', JSON.stringify(playlist));
+};
+
 const usePlaylistStore = create<PlaylistState>((set) => ({
   playlist: [],
   currentTrackIndex: 0,
   isPlaying: false,
   currentTime: 0,
   duration: 0,
-  shouldPlayOnUpdate: true,
+  shouldPlayOnUpdate: false,
 
   addTrack: async (track) => {
     try {
       const thumbnail = await getVideoDetails(track.youtubeId);
       set((state) => {
         const updatedPlaylist = [...state.playlist, { ...track, thumbnail, favorite: false }];
-        localStorage.setItem('playlist', JSON.stringify(updatedPlaylist));
-        if (state.shouldPlayOnUpdate) {
-          return { playlist: updatedPlaylist, currentTrackIndex: updatedPlaylist.length - 1, isPlaying: true };
-        } else {
-          return { playlist: updatedPlaylist };
-        }
+        updateLocalStorage(updatedPlaylist);
+        return state.shouldPlayOnUpdate ? 
+          { playlist: updatedPlaylist, currentTrackIndex: updatedPlaylist.length - 1, isPlaying: false } : 
+          { playlist: updatedPlaylist };
       });
     } catch (error) {
       console.error('Failed to add track:', error);
@@ -70,14 +71,18 @@ const usePlaylistStore = create<PlaylistState>((set) => ({
     return { currentTrackIndex: newIndex, isPlaying: true, currentTime: 0 };
   }),
   
-  setCurrentTime: (time) => set({ currentTime: time }),
+  setCurrentTime: (time = 0) => set({ currentTime: time }),
   
-  setDuration: (duration) => set({ duration }),
+  setDuration: (duration = 0) => set({ duration }),
   
   loadPlaylist: () => {
     const savedPlaylist = localStorage.getItem('playlist');
     if (savedPlaylist) {
-      set({ playlist: JSON.parse(savedPlaylist) });
+      try {
+        set({ playlist: JSON.parse(savedPlaylist) });
+      } catch (error) {
+        console.error('Failed to load playlist:', error);
+      }
     }
   },
   
@@ -85,7 +90,7 @@ const usePlaylistStore = create<PlaylistState>((set) => ({
     set((state) => {
       const updatedPlaylist = [...state.playlist];
       updatedPlaylist[index] = track;
-      localStorage.setItem('playlist', JSON.stringify(updatedPlaylist));
+      updateLocalStorage(updatedPlaylist);
       return { playlist: updatedPlaylist, shouldPlayOnUpdate: false };
     });
   },
@@ -93,7 +98,7 @@ const usePlaylistStore = create<PlaylistState>((set) => ({
   deleteTrack: (index) => {
     set((state) => {
       const updatedPlaylist = state.playlist.filter((_, i) => i !== index);
-      localStorage.setItem('playlist', JSON.stringify(updatedPlaylist));
+      updateLocalStorage(updatedPlaylist);
       return { playlist: updatedPlaylist, shouldPlayOnUpdate: false };
     });
   },
@@ -104,7 +109,7 @@ const usePlaylistStore = create<PlaylistState>((set) => ({
     set((state) => {
       const updatedPlaylist = [...state.playlist];
       updatedPlaylist[index] = { ...updatedPlaylist[index], favorite: !updatedPlaylist[index].favorite };
-      localStorage.setItem('playlist', JSON.stringify(updatedPlaylist));
+      updateLocalStorage(updatedPlaylist);
       return { playlist: updatedPlaylist };
     });
   },
