@@ -11,8 +11,8 @@ export async function getVideoDetails(youtubeId: string) {
         key: API_KEY,
       },
     });
-    const video = response.data.items[0];
-    return video?.snippet?.thumbnails?.default?.url || '';
+    const video = response.data.items[0]; 
+    return video?.snippet?.thumbnails?.high?.url || '';
   } catch (error) {
     console.error('Error fetching video details:', error);
     throw error;
